@@ -48,16 +48,11 @@ def num_cppcheck_violations(build):
 
 def num_compiler_warnings(build):
     """Return the number of reported compiler warnings."""
-    url1 = build.python_api_url(build.baseurl + '/warnings22Result')
-    url2 = build.python_api_url(build.baseurl + '/warnings42Result')
+    url = build.python_api_url(build.baseurl + '/warningsResult')
     warnings = 0
     try:
-        warnings += build.get_data(url1)['numberOfWarnings']
-    except Exception:
-        pass
-    try:
-        warnings += build.get_data(url2)['numberOfWarnings']
-    except Exception:
+        warnings += build.get_data(url)['numberOfWarnings']
+    except:
         pass
     return warnings
 
@@ -179,7 +174,6 @@ if __name__ == '__main__':
         u'ignition_transport4-install-pkg-artful-amd64',
         u'ignition_transport4-install-pkg-bionic-amd64',
         u'ignition_transport4-install-pkg-xenial-amd64',
-        u'release-tools-ci-default-bionic-amd64',
         u'sdformat-ci-default-artful-amd64',
         u'sdformat-ci-default-bionic-amd64',
         u'sdformat-ci-default-homebrew-amd64',
@@ -188,7 +182,6 @@ if __name__ == '__main__':
         u'sdformat-ci-default-xenial-amd64',
         u'sdformat-ci-default-xenial-armhf',
         u'sdformat-ci-default-xenial-i386',
-        u'sdformat-ci-default-zesty-amd64',
         u'sdformat-ci-sdformat5-xenial-amd64',
         u'sdformat-ci-sdformat6-homebrew-amd64',
         u'sdformat-ci-sdformat6-windows7-amd64',
@@ -336,7 +329,7 @@ if __name__ == '__main__':
     markdown.append('')
     markdown.append('### Only cppcheck errors')
     markdown.append('')
-    for info in [i for i in unstable_builds if 0 == i['warnings'] and 0 == i['test_failures']]:
+    for info in [i for i in unstable_builds if 0 == i['warnings'] and 0 == i['test_failures'] and i['cppcheck'] > 0]:
         build = info['build']
         build_name = build.name
         build_url = build.baseurl
@@ -345,7 +338,7 @@ if __name__ == '__main__':
     markdown.append('')
     markdown.append('### Only compiler warnings')
     markdown.append('')
-    for info in [i for i in unstable_builds if 0 == i['cppcheck'] and 0 == i['test_failures']]:
+    for info in [i for i in unstable_builds if 0 == i['cppcheck'] and 0 == i['test_failures'] and i['warnings'] > 0]:
         build = info['build']
         build_name = build.name
         build_url = build.baseurl
@@ -359,6 +352,14 @@ if __name__ == '__main__':
         build_url = build.baseurl
         num = info['test_failures']
         markdown.append('* [{build_name}]({build_url}) {num} test failures'.format(**locals()))
+    markdown.append('')
+    markdown.append('### Unrecognized failure')
+    markdown.append('')
+    for info in [i for i in unstable_builds if 0 == i['cppcheck'] and 0 == i['warnings'] and 0 == i['test_failures']]:
+        build = info['build']
+        build_name = build.name
+        build_url = build.baseurl
+        markdown.append('* [{build_name}]({build_url})'.format(**locals()))
 
     print('-------------------Markdown----------------------')
     print('\n'.join(markdown))
