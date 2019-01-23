@@ -95,9 +95,6 @@ def print_latest_failures(server, job_names):
         test_names.sort()
 
     print('---------------Markdown---------------')
-    print(platform_tuples)
-    print(job_names)
-    print(build_urls)
     for build_tuple, test_names in platform_tuples.items():
         build_links = []
         for build_name in build_tuple:
